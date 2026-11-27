@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>星穹展厅 · 星宠语</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<canvas id="stage"></canvas>
+
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<header class="hud hud-top">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <div class="brand-text">
+      <div class="eyebrow">星宠语 · PET ATRIUM</div>
+      <h1>星穹展厅</h1>
+    </div>
+  </div>
+  <div class="toplinks">
+    <a class="back-home" href="../house2d/index.html">← 回主界面</a>
+    <a class="back-home" href="../room3d/index.html">🏡 3D 小屋</a>
+  </div>
+  <div class="counter">
+    <span id="idxNo">01</span><i>/</i><span id="totalNo">05</span>
+  </div>
+</header>
+
+<aside class="plate" id="plate">
+  <div class="plate-deco tl"></div>
+  <div class="plate-deco br"></div>
+
+  <div class="plate-element">
+    <span class="dot" id="pDot"></span>
+    <span id="pElement">星辉</span>
+  </div>
+
+  <h2 class="plate-name" id="pName">星狐</h2>
+  <div class="plate-en" id="pEn">STAR FOX</div>
+
+  <div class="rule"><span></span></div>
+
+  <p class="plate-desc" id="pDesc"></p>
+
+  <blockquote class="plate-quote" id="pQuote"></blockquote>
+
+  <ul class="plate-tags" id="pTags"></ul>
+</aside>
+
+<nav class="rail" id="rail"></nav>
+
+<div class="hint">
+  <span>拖动旋转</span><em></em><span>滚轮缩放</span><em></em><span>← → 切换</span><em></em><span>双击打招呼</span>
+</div>
+
+<div class="bubble" id="bubble"><span id="bubbleText"></span></div>
+
+<div class="loader" id="loader">
+  <div class="loader-star"></div>
+  <div class="loader-text">正在点亮星穹…</div>
+</div>
+
+<script>
+window.addEventListener('error', function (e) {
+  var d = document.getElementById('loader');
+  if (d) { d.classList.remove('done'); d.querySelector('.loader-text').textContent =
+    '出错了：' + (e.message || e) + ' @' + (e.filename || '') + ':' + (e.lineno || ''); }
+});
+</script>
+<script src="vendor/three.min.js"></script>
+<script src="data/pets.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{
+  "pet": "buding",
+  "name": "布丁",
+  "canvas": [
+    360,
+    360
+  ],
+  "key": "#00ff01",
+  "actions": {
+    "drag": {
+      "fps": 6,
+      "loop": true,
+      "frames": 1,
+      "stills": true
+    },
+    "drop": {
+      "fps": 6,
+      "loop": false,
+      "frames": 1,
+      "stills": true
+    },
+    "fly": {
+      "fps": 10,
+      "loop": true,
+      "frames": 4
+    },
+    "fly_left": {
+      "fps": 10,
+      "loop": true,
+      "frames": 4
+    },
+    "greet": {
+      "fps": 1,
+      "loop": false,
+      "frames": 1,
+      "stills": true
+    },
+    "idle": {
+      "fps": 1,
+      "loop": true,
+      "frames": 1,
+      "stills": true
+    },
+    "interact": {
+      "fps": 6,
+      "loop": false,
+      "frames": 1,
+      "stills": true
+    },
+    "parachute": {
+      "fps": 8,
+      "loop": false,
+      "hold_last": true,
+      "frames": 5
+    },
+    "sleep": {
+      "fps": 1,
+      "loop": true,
+      "frames": 1,
+      "stills": true
+    },
+    "walk": {
+      "fps": 8,
+      "loop": true,
+      "bob_only": true,
+      "frames": 4
+    },
+    "walk_left": {
+      "fps": 8,
+      "loop": true,
+      "bob_only": true,
+      "frames": 4
+    }
+  }
+}

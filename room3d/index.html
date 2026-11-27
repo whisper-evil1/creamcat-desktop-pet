@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>星宠语 · 3D 小屋</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<canvas id="scene"></canvas>
+
+<!-- 左上：宠物信息卡 -->
+<div class="pet-card" id="petCard">
+  <div class="avatar"><img id="petAvatar" alt="" /></div>
+  <div class="meta">
+    <div class="row"><b id="petName">星狐</b><span class="lv">Lv.<i id="petLv">5</i></span></div>
+    <div class="bar"><i id="petMood" style="width:76%"></i></div>
+  </div>
+  <button class="heart" id="btnHeart" title="摸摸它">♥</button>
+</div>
+
+<!-- 右上：工具 -->
+<div class="tools">
+  <button class="tool" id="btnCam" title="重置视角">⤾</button>
+  <button class="tool" id="btnNight" title="白天 / 夜晚">☀</button>
+  <button class="tool" id="btnSwitch" title="换一只伙伴">✦</button>
+</div>
+
+<!-- 左下：方向键 -->
+<div class="dpad" id="dpad">
+  <button class="d up" data-dir="up" aria-label="前进">▲</button>
+  <button class="d left" data-dir="left" aria-label="左">◀</button>
+  <button class="d center" aria-hidden="true">🐾</button>
+  <button class="d right" data-dir="right" aria-label="右">▶</button>
+  <button class="d down" data-dir="down" aria-label="后退">▼</button>
+</div>
+
+<!-- 右下：功能 -->
+<div class="actions">
+  <button id="btnInteract"><span>💬</span><em>互动</em></button>
+  <button id="btnToy"><span>🎾</span><em>玩具</em></button>
+  <button id="btnLook"><span>👗</span><em>装扮</em></button>
+</div>
+
+<!-- 底部提示 -->
+<div class="hint" id="hint">
+  <b>WASD / 方向键</b> 移动 · <b>点地板</b> 自动走过去 · <b>拖动</b> 旋转镜头 · <b>滚轮</b> 缩放
+</div>
+
+<!-- 互动面板 -->
+<div class="sheet" id="sheet" aria-hidden="true">
+  <div class="sheet-head">
+    <b id="sheetTitle">想做什么？</b>
+    <button id="sheetClose">✕</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<!-- 气泡 -->
+<div class="bubble" id="bubble"></div>
+
+<!-- 载入 -->
+<div class="loader" id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">正在搭小屋…</div>
+</div>
+
+<script src="data/pets.js"></script>
+<script src="assets/room.data.js"></script>
+<script src="app.bundle.js"></script>
+</body>
+</html>

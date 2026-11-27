@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+debug/
+runtime.txt
+.workbuddy_note
+.workbuddy/
+Thumbs.db
+.DS_Store
+desktop.ini
+.gen/
+
+# 运行时生成的语音缓存（首次联网合成后产生）
+assets/voice_cache/
+# 测试输出
+_tts_smoke.mp3

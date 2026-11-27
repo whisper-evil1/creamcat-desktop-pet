@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>星宠语 · 我的宠物小屋</title>
+<link rel="stylesheet" href="home.css" />
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <a class="brand" href="#" data-view="home">
+      <span class="brand-mark">✦</span>
+      <span class="brand-text">
+        <b>星宠语</b>
+        <small>让可爱的生命，住进你的世界</small>
+      </span>
+    </a>
+    <nav class="nav" id="nav">
+      <button data-view="home">首页</button>
+      <button data-view="dex">宠物图鉴</button>
+      <button data-view="house" class="on">宠物小屋</button>
+      <button data-view="community">好友社区</button>
+    </nav>
+    <div class="top-tools">
+      <button class="icon-btn" id="btnAtriumTop">✦ 星穹展厅</button>
+      <button class="icon-btn" id="btnNest2d">🍡 2D 小窝</button>
+      <button class="icon-btn" id="btnRoom3d">🏡 3D 小屋</button>
+      <button class="login-btn">登录 / 注册</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ 首页 ============ -->
+    <section class="view" id="view-home">
+      <div class="hero">
+        <div>
+          <h1>今天也想见你</h1>
+          <p id="heroDesc">五只小住客在星宠语等你回来。给它们换个喜欢的地方，说说话，或者一起在星空下转一圈。</p>
+          <div class="row">
+            <button class="btn-primary" data-view="house">进入宠物小屋</button>
+            <button class="btn-ghost" id="btnAtriumHome">去星穹展厅 →</button>
+          </div>
+        </div>
+        <div class="hero-img"><img id="heroPet" alt="" /></div>
+      </div>
+      <div class="tiles">
+        <div class="tile">
+          <div class="ic">🏡</div>
+          <h3>宠物小屋</h3>
+          <p>五个场景随时切换，白天夜晚各有光。拖动视角，看它转个身。</p>
+        </div>
+        <div class="tile">
+          <div class="ic">📖</div>
+          <h3>宠物图鉴</h3>
+          <p>星狐、奶糖、团团、布丁、可可，每只都有自己的来历和小脾气。</p>
+        </div>
+        <div class="tile">
+          <div class="ic">✨</div>
+          <h3>星穹展厅</h3>
+          <p>星空下的石台，八向转身、符文法阵与倒影，适合安静地待一会儿。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 宠物小屋（主界面） ============ -->
+    <section class="view on" id="view-house">
+      <div class="mood-line">
+        <span id="moodText">来自森林深处的小精灵 · 头上的叶子会随着心情轻轻摇晃。</span>
+        <div class="quick">
+          <button class="chip" id="btnTime">☀ 白天 · 换场景</button>
+          <button class="chip pink" id="btnSwitch">换一只伙伴 ♡</button>
+        </div>
+      </div>
+
+      <div class="card scenes">
+        <div class="card-head">
+          <h2>给它换个喜欢的地方吧</h2>
+          <div class="seg" id="segTime">
+            <button class="on" data-t="day">☀ 白天</button>
+            <button data-t="night">🌙 夜晚</button>
+          </div>
+        </div>
+        <div class="scene-row" id="sceneRow"></div>
+      </div>
+
+      <div class="stage-grid">
+        <div class="card pet-stage" id="petStage">
+          <div class="scene-bg" id="sceneBg"></div>
+          <div class="scene-fx" id="sceneFx"></div>
+          <div class="pet-sprite" id="petSprite">
+            <img id="petImg" alt="" />
+          </div>
+          <div class="bubble" id="bubble"></div>
+          <div class="streak"><b id="streakNo">1</b> 天<small>今日火花已续</small></div>
+          <div class="pet-status">
+            <i></i>它感觉到你现在「<b id="stMood">平静</b>」· <span id="stLv">Lv.2</span>
+          </div>
+          <button class="ghost-btn" id="btnAtrium">✦ 星穹展厅</button>
+        </div>
+
+        <aside class="card side">
+          <div class="tabs" id="tabs">
+            <button data-tab="chat" class="on">聊天</button>
+            <button data-tab="look">穿搭</button>
+            <button data-tab="feed">喂食</button>
+            <button data-tab="stat">状态</button>
+          </div>
+          <div class="panes">
+            <div class="pane on" id="pane-chat">
+              <div class="chat-log" id="chatLog"></div>
+              <div class="composer">
+                <button class="round" id="btnMic" title="说话给我听">🎙</button>
+                <input id="chatInput" placeholder="和它说点什么…" autocomplete="off" />
+                <select id="toneSel">
+                  <option>温柔姐姐</option>
+                  <option>元气少女</option>
+                  <option>安静陪伴</option>
+                </select>
+                <button class="send" id="btnSend">发送</button>
+              </div>
+            </div>
+
+            <div class="pane" id="pane-look">
+              <p class="pane-tip">给它挑一件小装饰，会开心很久。</p>
+              <div class="look-grid" id="lookGrid"></div>
+            </div>
+
+            <div class="pane" id="pane-feed">
+              <p class="pane-tip">饿了会轻轻拽你的衣角。</p>
+              <div class="feed-grid" id="feedGrid"></div>
+            </div>
+
+            <div class="pane" id="pane-stat">
+              <div class="stat-list" id="statList"></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ 宠物图鉴 ============ -->
+    <section class="view" id="view-dex">
+      <div class="dex-head">
+        <h2>宠物图鉴</h2>
+        <span id="dexCount"></span>
+      </div>
+      <div class="dex-grid" id="dexGrid"></div>
+    </section>
+
+    <!-- ============ 好友社区 ============ -->
+    <section class="view" id="view-community">
+      <div class="empty">
+        <div class="em">🌙</div>
+        <h3>好友社区正在收集星光</h3>
+        <p>这里之后会放大家的宠物日常与串门记录。<br />现在先去小屋陪它待一会儿吧。</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="data/pets.js"></script>
+<script src="home.js"></script>
+</body>
+</html>

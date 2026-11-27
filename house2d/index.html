@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>星宠语 · 小窝</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- 全景：背景 + 家具热区 -->
+  <div class="world" id="world">
+    <div class="room" id="room"></div>
+    <div class="spots" id="spots"></div>
+  </div>
+
+  <!-- 近景场景（切进来时淡入） -->
+  <div class="scene" id="scene"></div>
+
+  <!-- 宠物 -->
+  <div class="pet-shadow" id="petShadow"></div>
+  <div class="pet" id="petWrap">
+    <div class="pet-in" id="petIn"><img id="petImg" alt="" /></div>
+    <span class="pet-fx" id="petFx"></span>
+  </div>
+
+  <!-- 顶栏 -->
+  <div class="hud">
+    <div class="petcard">
+      <div class="pc-ava"><img id="cardAva" alt="" /></div>
+      <div class="pc-meta">
+        <div class="pc-row">
+          <b id="cardName">星狐</b>
+          <i class="lv">Lv.<span id="cardLv">5</span></i>
+        </div>
+        <div class="pc-bar"><i id="cardMood"></i></div>
+      </div>
+      <button class="pc-heart" id="btnHeart" title="摸摸它">♥</button>
+    </div>
+
+    <div class="tools">
+      <button class="tool" id="btnReset" title="回到全景">◎</button>
+      <button class="tool" id="btnSwitch" title="换一只伙伴">✦</button>
+      <button class="tool" id="btnMore" title="更多">⋯</button>
+      <div class="pop" id="pop">
+        <a href="../showcase/index.html">✦ <span>星穹展厅</span></a>
+        <a href="../room3d/index.html">🏡 <span>3D 小屋</span></a>
+        <a href="../showcase/home.html">📖 <span>宠物图鉴</span></a>
+        <button data-act="switch">🎀 <span>换一只伙伴</span></button>
+        <button data-act="chat">💬 <span>和它说说话</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="back-tip" id="backTip">← 点空白处回到全景</div>
+
+  <!-- 对话框 -->
+  <div class="dialog" id="dialog">
+    <div class="dlg-pet" id="dlgPet">
+      <div class="dlg-pet-in"><img id="dlgImg" alt="" /></div>
+    </div>
+
+    <div class="dlg-body">
+      <div class="dlg-head">
+        <span class="dlg-name" id="dlgName">星狐</span>
+        <span class="dlg-here" id="dlgHere"></span>
+      </div>
+
+      <div class="dlg-echo" id="dlgEcho"></div>
+      <div class="dlg-text" id="dlgText"></div>
+      <div class="dlg-chips" id="dlgChips"></div>
+
+      <div class="dlg-chat" id="dlgChat">
+        <input id="chatInput" type="text" maxlength="40" placeholder="想对它说点什么…" />
+        <button id="btnSend">发送</button>
+      </div>
+    </div>
+
+    <button class="dlg-paw" id="btnChat" title="和它说话">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <ellipse cx="12" cy="15.6" rx="5.2" ry="4.4" fill="currentColor" opacity=".9"/>
+        <ellipse cx="5.4" cy="10.2" rx="2.1" ry="2.6" fill="currentColor" opacity=".9"/>
+        <ellipse cx="9.4" cy="6.7" rx="2.1" ry="2.7" fill="currentColor" opacity=".9"/>
+        <ellipse cx="14.6" cy="6.7" rx="2.1" ry="2.7" fill="currentColor" opacity=".9"/>
+        <ellipse cx="18.6" cy="10.2" rx="2.1" ry="2.6" fill="currentColor" opacity=".9"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="hint" id="hint">把鼠标移到家具上，会出现名字哦～</div>
+</div>
+
+<script src="../showcase/data/pets.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
