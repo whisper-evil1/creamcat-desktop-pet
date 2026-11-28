@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>星宠语 · 3D 小屋</title>
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
@@ -22,9 +22,18 @@
 
 <!-- 右上：工具 -->
 <div class="tools">
-  <button class="tool" id="btnCam" title="重置视角">⤾</button>
   <button class="tool" id="btnNight" title="白天 / 夜晚">☀</button>
   <button class="tool" id="btnSwitch" title="换一只伙伴">✦</button>
+  <button class="tool" id="btnMore" title="更多">⋯</button>
+  <div class="pop" id="pop">
+    <a href="../showcase/home.html">◂ <span>回主界面</span></a>
+    <a href="../showcase/index.html">✦ <span>星穹展厅</span></a>
+    <a href="../house2d/index.html">🍡 <span>2D 小窝</span></a>
+    <a href="../showcase/home.html">📖 <span>宠物图鉴</span></a>
+    <button data-act="cam">⤾ <span>重置视角</span></button>
+    <button data-act="switch">🎀 <span>换一只伙伴</span></button>
+    <button data-act="chat">💬 <span>和它说说话</span></button>
+  </div>
 </div>
 
 <!-- 左下：方向键 -->
@@ -68,6 +77,6 @@
 
 <script src="data/pets.js"></script>
 <script src="assets/room.data.js"></script>
-<script src="app.bundle.js"></script>
+<script src="app.bundle.js?v=3"></script>
 </body>
 </html>

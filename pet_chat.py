@@ -68,13 +68,17 @@ FALLBACK = [
 NAME_RE = re.compile(r"(?:我(?:叫|是)|叫我)\s*([^\s，,。！!？?、]{1,8})")
 
 
-def reply(text, pet_name, user_name=""):
-    """返回 (回复文本, 新用户名字或 None)。"""
+def _dispatch(text, pet_name, user_name="", emotion=None):
+    """规则派发：返回 (回复文本, 新用户名字或 None, 规则 id)。"""
     raw = (text or "").strip()
     if not raw:
-        return "你说话呀，我在听呢。", None
+        return "你说话呀，我在听呢。", None, "empty"
     low = raw.lower()
-    ctx = {"name": pet_name, "user": user_name or ""}
+    ctx = {
+        "name": pet_name,
+        "user": user_name or "",
+        "moodWord": mood_word(emotion or {}),
+    }
     new_name = None
 
     for rid, keys, body in RULES:
@@ -83,13 +87,249 @@ def reply(text, pet_name, user_name=""):
         if rid == "setname":
             m = NAME_RE.search(raw)
             if not m:
-                return "嗯？你叫什么呀，我没听清。", None
+                return "嗯？你叫什么呀，我没听清。", None, rid
             new_name = m.group(1)
-            return ("「" + new_name + "」…真好听。\n以后我就这么叫你啦，" + new_name + "。", new_name)
+            return ("「" + new_name + "」…真好听。\n以后我就这么叫你啦，" + new_name + "。",
+                    new_name, rid)
         if rid == "hi":
             h = time.localtime().tm_hour
             greet = "早上好呀～" if h < 11 else ("下午好～" if h < 18 else "晚上好呀～")
-            return greet + "\n我刚在桌面上发呆呢。", None
-        return (body(raw, ctx) if callable(body) else body), None
+            return greet + "\n我刚在桌面上发呆呢。", None, rid
+        return (body(raw, ctx) if callable(body) else body), None, rid
 
-    return random.choice(FALLBACK), None
+    return random.choice(FALLBACK), None, "fallback"
+
+
+def reply(text, pet_name, user_name=""):
+    """兼容旧调用：返回 (回复文本, 新用户名字或 None)。"""
+    out, new_name, _ = _dispatch(text, pet_name, user_name)
+    return out, new_name
+
+
+# ============================================================
+# P0 情绪记忆：默认状态 / 时间衰减 / 互动增量 / 主动问候
+# 全部为纯函数（同样输入得同样输出），便于确定性单测。
+# ============================================================
+DEFAULT_MOOD = 65
+DEFAULT_BOND = 30
+NEUTRAL_MOOD = 50
+NEUTRAL_BOND = 30
+DECAY_AFTER_HOURS = 6.0     # 离线超过 6 小时才开始衰减
+DECAY_PER_HOUR = 2.0        # 之后每小时向中性回归点数
+
+# 规则 id -> (心情增量, 亲昵增量)；不在表内的规则不改变情绪
+RID_DELTA = {
+    "pet": (6, 4), "soft": (5, 3), "praise": (6, 3), "love": (7, 5),
+    "feed": (5, 2), "taste": (3, 1), "thanks": (3, 2), "play": (6, 3),
+    "start": (5, 2), "hi": (2, 1), "come_more": (2, 2), "accompany": (3, 3),
+    "sad": (-3, 2), "mood": (-1, 1), "bye": (0, 1), "story": (2, 2),
+    "warm": (4, 3), "spin": (3, 1),
+}
+
+
+def emotion_default():
+    """新用户的初始情绪状态。"""
+    return {"mood": DEFAULT_MOOD, "bond": DEFAULT_BOND, "last_seen": None}
+
+
+def emotion_sanitize(em, now=None):
+    """把配置里读到的情绪字段夹到合法区间；缺失字段补默认值。"""
+    now = time.time() if now is None else now
+    src = em if isinstance(em, dict) else {}
+
+    def num(key, default, lo, hi):
+        try:
+            v = float(src.get(key, default))
+        except (TypeError, ValueError):
+            v = default
+        return max(lo, min(hi, int(round(v))))
+
+    ts = src.get("last_seen")
+    if not isinstance(ts, (int, float)) or ts <= 0:
+        ts = now
+    return {"mood": num("mood", DEFAULT_MOOD, 0, 100),
+            "bond": num("bond", DEFAULT_BOND, 0, 100),
+            "last_seen": float(ts)}
+
+
+def emotion_decay(em, now=None):
+    """纯函数：离线超过阈值后，心情与亲昵按小时向中性回归。"""
+    now = time.time() if now is None else now
+    out = emotion_sanitize(em, now)
+    hours = max(0.0, (now - out["last_seen"]) / 3600.0)
+    effective = max(0.0, hours - DECAY_AFTER_HOURS)
+    if effective <= 0:
+        return out
+    steps = min(effective * DECAY_PER_HOUR, 100.0)
+
+    def toward(value, neutral):
+        if value > neutral:
+            return max(neutral, value - steps)
+        if value < neutral:
+            return min(neutral, value + steps)
+        return value
+
+    out["mood"] = int(round(toward(out["mood"], NEUTRAL_MOOD)))
+    out["bond"] = int(round(toward(out["bond"], NEUTRAL_BOND)))
+    out["last_seen"] = now
+    return out
+
+
+def emotion_apply(em, delta, now=None):
+    """纯函数：先衰减再叠加本次互动增量，最后刷新时间戳。"""
+    now = time.time() if now is None else now
+    out = emotion_decay(em, now)
+    dm, db = delta if delta else (0, 0)
+
+    def clamp(v):
+        return max(0, min(100, v))
+
+    out["mood"] = clamp(out["mood"] + int(dm))
+    out["bond"] = clamp(out["bond"] + int(db))
+    out["last_seen"] = now
+    return out
+
+
+def mood_word(em):
+    """当前心情的中文描述，供回复里引用。"""
+    m = (em or {}).get("mood", DEFAULT_MOOD)
+    try:
+        m = int(m)
+    except (TypeError, ValueError):
+        m = DEFAULT_MOOD
+    return "亮亮的" if m >= 75 else ("软软的" if m >= 50 else "有点闷")
+
+
+def greeting(em, pet_name, user_name=""):
+    """久别重逢时的主动状态问候，按当前心情分三档。"""
+    m = (em or {}).get("mood", DEFAULT_MOOD)
+    try:
+        m = int(m)
+    except (TypeError, ValueError):
+        m = DEFAULT_MOOD
+    who = user_name or "你"
+    if m >= 75:
+        return who + "回来啦！" + pet_name + "刚在数窗外的云，数着数着就在等你。"
+    if m >= 45:
+        return who + "，你来了。我趴在门口，尾巴还没停。"
+    return "（慢慢抬起头）" + who + "…我等了一会儿。你来了就好。"
+
+
+def reply_ex(text, pet_name, user_name="", emotion=None, now=None):
+    """扩展版：返回 (回复, 新用户名, 情绪增量, 规则 id)。
+
+    危机表述优先兜底（规则 id=crisis），保证不进入娱乐化回复。
+    """
+    raw = (text or "").strip()
+    level = crisis_level(raw)
+    if level:
+        return (CRISIS_REPLY[level], None, (0, 2), "crisis")
+    out, new_name, rid = _dispatch(raw, pet_name, user_name, emotion)
+    return out, new_name, RID_DELTA.get(rid, (0, 0)), rid
+
+
+# ============================================================
+# P3 安全兜底：危机关键词识别（克制词表，不误伤日常口语）
+# ============================================================
+_CRISIS_HIGH = re.compile(
+    r"自杀|自伤|伤害自己|结束(自己的)?生命|不想活了?|活不下去|了结自己|割腕|跳楼|服毒|自残")
+_CRISIS_MILD = re.compile(r"活着没(意思|意义)|没有意义|想消失|撑不下去|看不到希望")
+
+
+def crisis_level(text):
+    """纯函数：0=无风险，1=需要温和提示，2=需要立即引导求助。"""
+    t = re.sub(r"\s+", "", text or "")
+    if _CRISIS_HIGH.search(t):
+        return 2
+    if _CRISIS_MILD.search(t):
+        return 1
+    return 0
+
+
+CRISIS_REPLY = {
+    1: "（轻轻靠过来）\n你这样说，我想认真听。\n如果这不是玩笑，找身边信任的人聊聊，"
+       "或拨打心理援助热线。我在这儿陪你。",
+    2: "（放下所有动作，认真看着你）\n这很重要：我只是一只桌宠，不是专业帮助。\n"
+       "请现在就联系身边的人，或拨打当地心理援助热线。\n我会安静陪着你，但你需要真人来帮你。",
+}
+
+
+# ============================================================
+# P2 舒缓引导：呼吸与 5-4-3-2-1 锚定，逐句纯文本步骤
+# ============================================================
+_BREATH_KEYS = ("呼吸", "喘不过气", "焦虑", "紧张", "心慌", "睡不着", "压力", "静一静", "冷静")
+_GROUND_KEYS = ("5-4-3-2-1", "54321", "锚定", "走神", "发慌", "胡思乱想", "分心")
+
+SUPPORT_STEPS = {
+    "breathe": [
+        "先坐直一点点，跟着我来。",
+        "吸气——数四下，一、二、三、四。",
+        "屏住——数七下，慢慢数。",
+        "呼气——数八下，把肩膀一起放下来。",
+        "再来一轮：吸四、屏七、呼八。",
+        "最后一次。你会发现，呼吸比刚才长了。",
+    ],
+    "grounding": [
+        "我们把注意力拉回这里，慢慢看一圈。",
+        "说出你看到的五样东西，心里数就行。",
+        "再摸到四样：桌沿、衣角、椅子…都可以。",
+        "听一听，找出三种声音。",
+        "闻一闻两种气味，再尝一尝一种味道。",
+        "好了，你回到了现在。我一直在这儿。",
+    ],
+}
+
+SUPPORT_INTERVAL = {"breathe": 4.2, "grounding": 5.0}   # 每步间隔（秒）
+
+
+def support_kind(text):
+    """纯函数：识别该启动哪种舒缓流程，None 表示不启动。"""
+    t = (text or "").lower()
+    if any(k in t for k in _GROUND_KEYS):
+        return "grounding"
+    if any(k in t for k in _BREATH_KEYS):
+        return "breathe"
+    return None
+
+
+# ============================================================
+# P1 心情打卡：日志聚合纯函数（IO 由调用方负责）
+# ============================================================
+MOOD_LABELS = ((5, "很好"), (4, "不错"), (3, "还行"), (2, "不太好"), (1, "很糟"))
+MOOD_KEEP_DAYS = 90
+
+
+def mood_log_filter(entries, now=None, days=7):
+    """纯函数：只保留最近 days 天、分数合法的打卡记录。"""
+    now = time.time() if now is None else now
+    cutoff = now - max(1, days) * 86400
+    out = []
+    for e in entries if isinstance(entries, list) else []:
+        if not isinstance(e, dict):
+            continue
+        ts, score = e.get("ts"), e.get("score")
+        if not isinstance(ts, (int, float)) or ts < cutoff or ts > now + 300:
+            continue
+        try:
+            score = int(score)
+        except (TypeError, ValueError):
+            continue
+        if 1 <= score <= 5:
+            out.append({"ts": float(ts), "score": score})
+    return out
+
+
+def mood_daily_avg(entries, now=None, days=7):
+    """纯函数：按本地日历日聚合最近 days 天的平均分，无数据的日子为 None。"""
+    now = time.time() if now is None else now
+    valid = mood_log_filter(entries, now, days)
+    buckets = {}
+    for e in valid:
+        day = time.strftime("%Y-%m-%d", time.localtime(e["ts"]))
+        buckets.setdefault(day, []).append(e["score"])
+    out = []
+    for i in range(max(1, days) - 1, -1, -1):
+        day = time.strftime("%Y-%m-%d", time.localtime(now - i * 86400))
+        vals = buckets.get(day)
+        out.append((day, round(sum(vals) / len(vals), 2) if vals else None))
+    return out

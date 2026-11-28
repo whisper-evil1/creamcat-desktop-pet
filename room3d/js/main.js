@@ -563,13 +563,38 @@ dpad.addEventListener('pointercancel', clearDpad);
 dpad.addEventListener('pointerleave', clearDpad);
 
 // 工具
-$('#btnCam').addEventListener('click', () => {
+function resetCam() {
   camera.position.set(5.1, 4.5, 6.2);
   controls.target.set(0, 0.8, 0.1);
   controls.update();
-});
+}
+const oldCam = $('#btnCam');
+if (oldCam) oldCam.addEventListener('click', resetCam);
 $('#btnNight').addEventListener('click', () => setNight(!state.night));
 $('#btnSwitch').addEventListener('click', () => switchPet(1));
+
+// 更多菜单：点 ⋯ 展开，点菜单项执行对应动作，点别处 / Esc 收起
+(() => {
+  const btn = $('#btnMore');
+  const pop = $('#pop');
+  if (!btn || !pop) return;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pop.classList.toggle('show');
+  });
+  pop.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const b = e.target.closest('[data-act]');
+    if (!b) return;
+    pop.classList.remove('show');
+    const act = b.dataset.act;
+    if (act === 'cam') resetCam();
+    if (act === 'switch') switchPet(1);
+    if (act === 'chat') sheetInteract();
+  });
+  document.addEventListener('click', () => pop.classList.remove('show'));
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') pop.classList.remove('show'); });
+})();
 $('#btnHeart').addEventListener('click', () => {
   state.mood = Math.min(100, state.mood + 4);
   refreshCard();
