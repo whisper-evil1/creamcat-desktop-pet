@@ -13,3 +13,17 @@ desktop.ini
 assets/voice_cache/
 # 测试输出
 _tts_smoke.mp3
+# P1 心情打卡：本地隐私数据，不入库
+mood_log.json
+
+# 对话记忆（隐私数据）
+conversation.json
+_dialogue_test.json
+
+_raw/
+
+# 素材清理前的原始帧备份（本地重跑清理用，体积大，不入库）
+assets/pets/*/frames_raw/
+
+# 网页版心情打卡数据（由桌宠自动生成）
+showcase/data/mood_log.js
