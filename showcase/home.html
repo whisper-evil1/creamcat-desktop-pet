@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="home.css" />
 </head>
 <body>
+<div class="bg-aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <div class="app">
 
   <header class="topbar">
@@ -76,10 +77,14 @@
 
       <div class="card scenes">
         <div class="card-head">
-          <h2>给它换个喜欢的地方吧</h2>
-          <div class="seg" id="segTime">
-            <button class="on" data-t="day">☀ 白天</button>
-            <button data-t="night">🌙 夜晚</button>
+          <h2>给它换个喜欢的地方吧<span class="hint">8 个地方 · 左右滑动</span></h2>
+          <div class="scene-tools">
+            <button class="scene-arrow" id="scenePrev" type="button" aria-label="往前一个">‹</button>
+            <button class="scene-arrow" id="sceneNext" type="button" aria-label="往后一个">›</button>
+            <div class="seg" id="segTime">
+              <button class="on" data-t="day">☀ 白天</button>
+              <button data-t="night">🌙 夜晚</button>
+            </div>
           </div>
         </div>
         <div class="scene-row" id="sceneRow"></div>
@@ -97,7 +102,10 @@
           <div class="pet-status">
             <i></i>它感觉到你现在「<b id="stMood">平静</b>」· <span id="stLv">Lv.2</span>
           </div>
-          <button class="ghost-btn" id="btnAtrium">✦ 星穹展厅</button>
+          <div class="stage-actions">
+            <button class="ghost-btn" id="btnMoodLog">📔 心情日记</button>
+            <button class="ghost-btn" id="btnAtrium">✦ 星穹展厅</button>
+          </div>
         </div>
 
         <aside class="card side">
@@ -160,7 +168,24 @@
   </main>
 </div>
 
+<!-- 心情日记浮层：近 7 天打卡趋势 -->
+<div class="mood-modal" id="moodModal" hidden>
+  <div class="mood-modal-card">
+    <button class="mood-close" id="moodClose" aria-label="关闭">×</button>
+    <div class="mood-head">
+      <span class="mood-emoji">📔</span>
+      <div>
+        <h2>心情日记</h2>
+        <p>近 7 天的心情轨迹 · 在桌宠右键「今天心情如何」打卡</p>
+      </div>
+    </div>
+    <div class="mood-chart" id="moodChart"></div>
+    <div class="mood-list" id="moodList"></div>
+  </div>
+</div>
+
 <script src="data/pets.js"></script>
+<script src="data/mood_log.js"></script>
 <script src="home.js"></script>
 </body>
 </html>

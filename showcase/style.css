@@ -403,9 +403,13 @@ body.dragging { cursor: grabbing; }
 .toplinks {
   margin: 2px 20px 0 auto;
   display: flex; gap: 8px;
+  /* .hud 设了 pointer-events:none，这里必须恢复，否则链接点不动 */
+  pointer-events: auto;
 }
 .back-home {
   margin: 0;
+  pointer-events: auto;
+  cursor: pointer;
   font-size: 12px; letter-spacing: 0.16em;
   color: var(--gold);
   text-decoration: none;
